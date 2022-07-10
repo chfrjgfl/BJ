@@ -47,34 +47,34 @@ butcher.w.on("message", t =>  {
     console.log('Butcher says:', JSON.stringify(t));
     let mode = t.cmd;
 
-    if (mode === 's') {   
+    if (mode === 's') {                             // Stop
         let dealerScore = dealSelf(t.score);  
 
         if (dealerScore <= 21 && dealerScore >= t.score) {
-            mode = 'l';
+            mode = 'l';                                         // Player Lost
             if (dealerScore == 21) stats.dealerWon21 ++;
             else if (dealerScore == t.score) stats.dealerWonByEqual ++;
             else stats.dealerHasMore ++;
         } else {
-            mode = 'w';
+            mode = 'w';                                         // Player Won
             if (dealerScore > 21) stats.dealerOver ++;
             else stats.butcherHasMore ++;
         }  
     }
 
-    if (mode === 'l') {
+    if (mode === 'l') {                                 // Player Lost
         stats.totalScore++;
         console.log ('Dealer won!',  `Total score ${stats.totalScore}`);
         if (t.score > 21) stats.butcherOver ++;
     }
 
-    if (mode === 'w') {
+    if (mode === 'w') {                                 // Player Won
         stats.totalScore--;
         console.log ('Player won!',  `Total score ${stats.totalScore}`);
         if (t.score >= 21) stats.butcherWon21 ++;
     }
 
-    if (['l', 'w'].includes(mode)) {
+    if (['l', 'w'].includes(mode)) {                      // Round finished
         deckValue -= t.score;
         stats.totalRounds ++;
 
@@ -84,30 +84,28 @@ butcher.w.on("message", t =>  {
         mode = 'm';    
     }
 
-    if (mode === 'm') { 
+    if (mode === 'm') {                                     // 1 More card
         stats.cardsPlayedButcher ++;
         butcher.w.postMessage({cmd: 'c', body: deck.pop()});
     }  
 });
 
-butcher.w.on("exit", () => process.exit(2));
-
 console.log('-----');
 
 
-
+//-----------------------------
 function dealSelf(offset) {
     let score = 0;
     let card = {};
     const hand = [];
 
-    checkDeck(dealerLimit + offset + 1);
+    checkDeck(dealerLimit + offset + 1);            // 
 
     while (score <= dealerLimit) {
         card = deck.pop();
         hand.push(card);        
         score += card.val;
-        console.log(`Dealer's got ${card.name} of ${card.suit}; total ${score}; DV ${deckValue}`);
+        console.log(`Dealer's got ${card.name} of ${card.suit}; total ${score}`);
     }
     stats.cardsPlayedDealer += hand.length;
     butcher.w.postMessage({cmd: 'd', body: {name: 'Dealer', hand: hand}});
@@ -117,12 +115,14 @@ function dealSelf(offset) {
     return score;
 }
 
+//------------------------
 function printStat() {
     console.log ('------------'); 
     console.log (JSON.stringify(stats));
     process.exit(20);
 }
 
+//------------------------------------------------
 function addNewDeck(deck) {
     const newDeck = [];
     for (let s of suits) {
@@ -141,6 +141,7 @@ function addNewDeck(deck) {
     return newDeck.concat(deck);
 }
 
+//--------------------------------------------------------
 function checkDeck(edge) {
     if (deckValue < edge) {  
         if (numberOfDecks > 1) {

@@ -1,7 +1,7 @@
 const threads = require("worker_threads");
 const myName = 'Butcher';
 const spares0 = [8, 8, 8, 4, 4, 4 ];
-let spares = [8, 8, 8, 4, 4, 4 ];        //qty of cards with value = 1,2,3,4,5,6,7
+let spares = [8, 8, 8, 4, 4, 4 ];        //qty of cards with value = 2,3,4,5,6,7
 let probEdge;
 const hand = [];
 let countCards = false;
@@ -40,8 +40,8 @@ threads.parentPort.on("message", t => {
                     } else if (score > playerEdge) {
                         let prob = countCards? 
                             spares.slice(0, 20 - score).reduce((a,b) => a + b, 0) / restOfDeck: 0;
-                        msg = prob < probEdge ? 's': 'm';           // Stop: More
-                    } else msg = 'm' ;
+                        msg = prob < probEdge ? 's': 'm';                                           // Stop: More
+                    } else msg = 'm';
                     threads.parentPort.postMessage({cmd: msg, hand: hand, score: score});
                     break;
 
